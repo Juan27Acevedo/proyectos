@@ -10,32 +10,26 @@
     $direccion = $_POST['direccion'];
     $cargo = $_POST['cargo'];
     $salario = $_POST['salario'];
-    $artivo= $_POST['archivo'];
     
     
     
-   if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['validar'])){
-$sql_existencia = "SELECT idempleado FROM empleado WHERE idempleado = '$cedula'";
-    $result_existencia = $conn->query($sql_existencia);
-
-    if ($result_existencia->num_rows > 0) {
-        echo "<script>alert('Usuario Con la Cedula $cedula ya esta registrado'); window.location.href='../../public/index.php';</script>";
-        if(isset($_POST['idempleado'])) {
-            // Sanitizar la entrada para evitar inyección de SQL (seguridad)
-            $cedula = mysqli_real_escape_string($conn, $_POST['idempleado']);
-        
-            // Consulta SQL para obtener los datos del empleado por su cédula
-            $sql = "SELECT * FROM empleado WHERE idempleado = '$cedula'";
-            $result = $conn->query($sql);
-        
-           
-      // header('location:validarcedula.php');
-    } else {
-        
-           echo "<script>alert('Usuario Con la Cedula $cedula no se encuenta registrado'); window.location.href='../../public';</script>";
+    
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['validar'])) {
+        // Sanitizar la entrada para evitar inyección de SQL (seguridad)
+        $cedula = mysqli_real_escape_string($conn, $_POST['idempleado']);
+    
+        // Consulta SQL para verificar si el usuario está registrado
+        $sql_existencia = "SELECT idempleado FROM empleado WHERE idempleado = '$cedula'";
+        $result_existencia = $conn->query($sql_existencia);
+    
+        if ($result_existencia->num_rows > 0) {
+            // Usuario registrado, mostrar mensaje
+            echo "<script>alert('Usuario Con la Cedula $cedula ya está registrado'); window.location.href='../../public/index.php';</script>";
+        } else {
+            // Usuario no registrado, mostrar mensaje
+            echo "<script>alert('Usuario Con la Cedula $cedula no se encuentra registrado'); window.location.href='../../public';</script>";
         }
     }
-}
 
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['agregar'])) {

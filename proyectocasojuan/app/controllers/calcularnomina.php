@@ -2,34 +2,69 @@
 session_start();
 include '../conexion/conexion.php';
 
+
 $cedula = $_POST['idempleado'];
-$ingreso = $_POST['mes'];
-$diasl = $_POST['diaslaborados'];
-$extras = $_POST['horasextras'];
-$nocturnas = $_POST['horasnocturnas'];
-$festivos = $_POST['festivos'];
+$horas_extras = $_POST['horasextras'];
+$horas_nocturnas = $_POST['horasnocturnas']; 
+$horas_festivas = $_POST['festivos'];
 $bono = $_POST['bono'];
-$sueldo = $_POST['sueldoneto'];
 
 
-
-if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['calcular'])) {
-    $sql = "INSERT INTO nomina (`mes`, `diaslaborados`, `horasextras`, `horasnocturnas`, `festivos`, `bono`)
-    VALUES ('$ingreso', '$diasl', '$extras', '$nocturnas', '$festivos', '$bono')";
-
-if ($conn->query($sql) === TRUE) {
-    echo "<script>alert('Usuario Editado con Exito'); window.location.href='../../public/nomina.php';</script>";
-} else {
-echo "Error al insertar registro: " . $conexion->error;
+function calcularSalarioBase($conn, $cedula) {
+    $sql = "SELECT salario FROM empleado WHERE idempleado='$cedula'";
+    $resultado = mysqli_query($conn, $sql);
+    
+    if ($resultado && mysqli_num_rows($resultado) > 0) {
+        $fila = mysqli_fetch_assoc($resultado);
+        return $fila['salario'];
+    } else {
+        return 0; 
+    }
 }
+
+
+function calcularSalarioTotal($salario_base, $horas_extras, $horas_nocturnas, $horas_festivas, $bono) {
+    // Calcula el salario total sin incluir el bono
+    $salario_total = $salario_base + $horas_extras * 6915 + $horas_nocturnas * 9681 + $horas_festivas * 13830;
+    
+    
+    if ($salario_base < 1500000) {
+        $salario_total += 162000;
+    }
+    
+   
+    $salario_total += $bono;
+    
+    return $salario_total;
 }
 
 
-
-
-
-if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['regresar'])){
-    echo "holaaaa";
-    header('location:../../public/index.php');
+function calcularDescuentos($salario_base) {
+    $pension = $salario_base * 0.04; 
+    $salud = $salario_base * 0.04; 
+    $descuentos = $pension + $salud;
+    return $descuentos;
 }
+
+
+$salario_base = calcularSalarioBase($conn, $cedula);
+$salario_total = calcularSalarioTotal($salario_base, $horas_extras, $horas_nocturnas, $horas_festivas, $bono);
+$descuentos = calcularDescuentos($salario_base);
+
+
+$salario_neto = $salario_total - $descuentos;
+
+
+echo "Salario base: $salario_base <br>";
+
+echo "Descuento: $descuentos <br>";
+echo "Salario neto: $salario_neto";
+
+
+
+
+
+
 ?>
+
+
