@@ -2,69 +2,135 @@
 session_start();
 include '../conexion/conexion.php';
 
-
 $cedula = $_POST['idempleado'];
+$salarioBase = $_POST['salario'];
 $horas_extras = $_POST['horasextras'];
 $horas_nocturnas = $_POST['horasnocturnas']; 
 $horas_festivas = $_POST['festivos'];
 $bono = $_POST['bono'];
 
 
-function calcularSalarioBase($conn, $cedula) {
-    $sql = "SELECT salario FROM empleado WHERE idempleado='$cedula'";
-    $resultado = mysqli_query($conn, $sql);
-    
-    if ($resultado && mysqli_num_rows($resultado) > 0) {
-        $fila = mysqli_fetch_assoc($resultado);
-        return $fila['salario'];
+// Verificar si la cédula no está vacía
+if ($cedula) {
+    // Realizar la consulta para obtener el registro con el idadmin más alto
+    $sql = "SELECT * FROM administracion ORDER BY idadmin DESC LIMIT 1";
+    $result = $conn->query($sql);
+
+    // Verificar si hay resultados
+    if ($result->num_rows > 0) {
+        $administrador = $result->fetch_assoc();
+        $idAdmin = $administrador["idadmin"];
+        $extras = $administrador["horasextras"];
+        $nocturnas = $administrador["horasnocturnas"];
+        $festivos = $administrador["festivos"];
+        $descuentopension = $administrador["descuentopension"];
+        $descuentosalud = $administrador["descuentosalud"];
+        $atr = $administrador["atr"];
+
+
+        $calcularporcentajepension= $salarioBase*$descuentopension/100;
+        $calcularporcentajesalud= $salarioBase*$descuentosalud/100;
+        $descuentopenysal=$calcularporcentajepension+$calcularporcentajesalud;
+        $salarioBasedescuento= $salarioBase-$descuentopenysal;
+        $calcularHorasExtras = $horas_extras * $extras;
+        $calcularHorasNocturnas = $horas_nocturnas * $nocturnas;
+        $calcularHorasFestivos = $horas_festivas * $festivos;
+        $calcularSalarioFinal = $calcularHorasExtras + $calcularHorasNocturnas + $calcularHorasFestivos + $bono +$salarioBasedescuento;
+
+        $sql = "INSERT INTO nomina (salio_base, idempleado, idadmin, horasextras, horasnocturnas, festivos, bono, salario_neto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+
+        if ($stmt === false) {
+            die("Error en la preparación de la consulta: " . $conn->error);
+        }
+
+        $stmt->bind_param('diiiiidd', $salarioBasedescuento, $cedula, $idAdmin, $calcularHorasExtras, $calcularHorasNocturnas, $calcularHorasFestivos, $bono, $calcularSalarioFinal);
+        $stmt->execute();
+
+        if ($stmt->error) {
+            echo "paila: " . $stmt->error;
+        } else {
+             
+             }
+
+        $stmt->close();
     } else {
-        return 0; 
+        echo "No se encontraron resultados";
     }
+
+    $conn->close();
+} else {
+    echo "Por favor, proporciona una cédula válida.";
 }
-
-
-function calcularSalarioTotal($salario_base, $horas_extras, $horas_nocturnas, $horas_festivas, $bono) {
-    // Calcula el salario total sin incluir el bono
-    $salario_total = $salario_base + $horas_extras * 6915 + $horas_nocturnas * 9681 + $horas_festivas * 13830;
-    
-    
-    if ($salario_base < 1500000) {
-        $salario_total += 162000;
-    }
-    
-   
-    $salario_total += $bono;
-    
-    return $salario_total;
-}
-
-
-function calcularDescuentos($salario_base) {
-    $pension = $salario_base * 0.04; 
-    $salud = $salario_base * 0.04; 
-    $descuentos = $pension + $salud;
-    return $descuentos;
-}
-
-
-$salario_base = calcularSalarioBase($conn, $cedula);
-$salario_total = calcularSalarioTotal($salario_base, $horas_extras, $horas_nocturnas, $horas_festivas, $bono);
-$descuentos = calcularDescuentos($salario_base);
-
-
-$salario_neto = $salario_total - $descuentos;
-
-
-echo "Salario base: $salario_base <br>";
-
-echo "Descuento: $descuentos <br>";
-echo "Salario neto: $salario_neto";
-
-
-
-
 
 
 ?>
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de la Nómina</title>
+   
+    <style>
+        body{
+            background:chocolate;
+             font-family: Arial, Helvetica, sans-serif;
+            font-size: 18px;
+    
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background:  darkgrey;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+   <center> <h2>Resultado de la Nómina</h2></center>
+    <table>
+        <tr>
+            <th>Descripción</th>
+            <th>Valor</th>
+        </tr>
+        <tr>
+            <td>Horas Extras</td>
+            <td><?php echo "$ $calcularHorasExtras"; ?></td>
+        </tr>
+        <tr>
+            <td>Horas Nocturnas</td>
+            <td><?php echo "$ $calcularHorasNocturnas"; ?></td>
+        </tr>
+        <tr>
+            <td>Horas Festivas</td>
+            <td><?php echo "$ $calcularHorasFestivos"; ?></td>
+        </tr>
+        <tr>
+            <td>Bono</td>
+            <td><?php echo "$ $bono "; ?></td>
+        </tr>
+        
+        <tr>
+            <td>Auxilio de Transporte</td>
+            <td><?php echo "$ $atr";?></td>
+        </tr>
+        
+        <tr>
+            <td>Salario Final</td>
+            <td><?php echo "$ $calcularSalarioFinal"; ?></td>
+        </tr>
+    </table>
+            <form action="../../index.php">
+               <input type="submit" value="Regresar" >
+            </form>
+</body>
+</html>

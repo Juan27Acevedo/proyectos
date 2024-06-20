@@ -30,8 +30,13 @@
         <input type="number" id="descuentosalud" name="descuentosalud" placeholder="Descuento Salud">
 
             <input type="submit" name="enviar" value="enviar" id="enviar">
-            <input type="submit" name="inicio" value="inicio" id="inicio">
         </form>
+        <form action="../index.php">
+    <input type="submit" value="Regresar" >
+</form> 
     </div>
+
+    
+
 </body>
 </html>

@@ -20,7 +20,7 @@
                     <th>Correo</th>
                     <th>Direccion</th>
                     <th>Cargo</th>
-                    <th>Salario</th>
+                   
                     <th>Acciones</th>
                 </tr>
                 
@@ -49,7 +49,7 @@
                         echo "<td class='table__item'>" . $empleado["correo"] . "</td>";
                         echo "<td class='table__item'>" . $empleado["direccion"] . "</td>";
                         echo "<td class='table__item'>" . $empleado["cargo"] . "</td>";
-                        echo "<td class='table__item'>" . $empleado["salario"] . "</td>";
+                        
                         echo "<td class='table__item'><a href='../app/controllers/actualizar.php?id=" . $empleado["idempleado"] . "' class='table__item_link'>Editar</a></td>";
                         echo "</tr>";
                     }
@@ -60,7 +60,10 @@
                 // Liberar el conjunto de resultados y cerrar la conexión
                 $result->free();
                 $conn->close();
-                ?>          
+                ?>    
+                    <form action="../index.php">
+                        <input type="submit" value="Regresar" >
+                    </form>      
             </table>
         </div>
     </div>

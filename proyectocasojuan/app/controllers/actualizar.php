@@ -11,6 +11,30 @@ $cedula = $_GET['id']; // Asegúrate de que la clave es 'id' como en el enlace
     <title>Actualizar Usuario</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <style>
+        body{
+    background:chocolate;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    }
+    h1{
+        text-align: center;
+    }
+    
+    form{
+        text-align: center;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: darkgrey;
+    }
+    input[type="number"], input[type="text"],input[type="email"], button[type="button"]{
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    }
         .form-item {
             margin-bottom: 15px;
         }
@@ -68,7 +92,7 @@ $cedula = $_GET['id']; // Asegúrate de que la clave es 'id' como en el enlace
                         echo "<div class='form-item'><label for='correo'>Correo</label><input type='text' id='correo' name='correo' value='" . $empleado["correo"] . "'></div>";
                         echo "<div class='form-item'><label for='direccion'>Dirección</label><input type='text' id='direccion' name='direccion' value='" . $empleado["direccion"] . "'></div>";
                         echo "<div class='form-item'><label for='cargo'>Cargo</label><input type='text' id='cargo' name='cargo' value='" . $empleado["cargo"] . "'></div>";
-                        echo "<div class='form-item'><label for='salario'>Salario</label><input type='text' id='salario' name='salario' value='" . $empleado["salario"] . "'></div>";
+                      
                         echo "<div class='form-item'><input type='hidden' name='idempleado' value='" . $empleado["idempleado"] . "'><button type='submit'>Guardar</button></div>";
                     }
                 } else {
@@ -80,6 +104,9 @@ $cedula = $_GET['id']; // Asegúrate de que la clave es 'id' como en el enlace
                 $conn->close();
                 ?>          
             </form>
+            <form action="../../index.php">
+    <input type="submit" value="Regresar" >
+</form> 
         </div>
     </div>
 </body>

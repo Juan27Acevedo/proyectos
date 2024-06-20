@@ -23,7 +23,7 @@ $sql= "INSERT INTO administracion (horasextras, horasnocturnas, festivos, atr, d
 
 if($_SERVER['REQUEST_METHOD'] == "POTS" and isset($_POST['inicio'])){
 
-    header('location:../public/index.php');
+    header('location:../../index.php');
 }
 
 ?>
